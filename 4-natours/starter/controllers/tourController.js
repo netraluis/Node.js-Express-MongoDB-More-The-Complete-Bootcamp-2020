@@ -1,0 +1,139 @@
+// const fs = require('fs');
+const Tour = require('../models/tourModel');
+
+// const tours = JSON.parse(
+//   fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`)
+// );
+
+// exports.checkbody = (req, res, next) => {
+//   if (!req.body.name || !req.body.price) {
+//     return res.status(400).json({
+//       status: 'fail',
+//       message: 'Missing name or price',
+//     });
+//   }
+//   next();
+// };
+// exports.checkID = (req, res, next, val) => {
+//   console.log(`your id is ${val}`);
+//   if (val * 1 > tours.length) {
+//     return res.status(404).json({
+//       status: 'fail',
+//       message: 'invallid ID',
+//     });
+//   }
+//   next();
+// };
+exports.getAllTours = async (req, res) => {
+  try {
+    // console.log(req.query);
+    // BUILD QUERY
+    //1)Filtering
+    const queryObj = { ...req.query };
+    const excludedFields = ['page', 'sort', 'limit', 'fields'];
+    excludedFields.forEach((el) => delete queryObj[el]);
+    //2) Advanced filtering
+
+    let queryStr = JSON.stringify(queryObj);
+    queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
+    const query = Tour.find(JSON.parse(queryStr));
+
+    // .where('duration').equals(7);
+    // .where('dificulty')
+    // .equals('easy');
+
+    //EXECUTE QUERY
+    const tours = await query;
+
+    //SEND QUERY
+    res.status(200).json({
+      status: 'success',
+      results: tours.length,
+      data: {
+        tours,
+      },
+    });
+  } catch (err) {
+    res.status(404).json({
+      status: 'fail',
+      message: `error `,
+    });
+  }
+};
+exports.getTour = async (req, res) => {
+  try {
+    // tour.findOne({
+    //   _id:req.params.id
+    // }) es lo mismo que findById
+    const tour = await Tour.findById(req.params.id);
+    res.status(200).json({
+      status: 'success',
+      data: {
+        tour,
+      },
+    });
+  } catch (err) {
+    res.status(404).json({
+      status: 'fail',
+      message: `error `,
+    });
+  }
+};
+exports.createTour = async (req, res) => {
+  try {
+    // const newTour = new Tour()
+    // newTour.save() abajo hacemos lo mismo
+    const tour = await Tour.create(req.body);
+
+    // 201 is created
+    res.status(201).json({
+      status: 'success',
+      data: {
+        tour,
+      },
+    });
+  } catch (err) {
+    res.status(404).json({
+      status: 'fail',
+      message: err,
+    });
+  }
+};
+exports.updateTour = async (req, res) => {
+  // tour.findOneAndUpdate({
+  //   _id:req.params.id
+  // }) es lo mismo que findById
+  try {
+    const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
+      new: 'true',
+      runValidators: 'true',
+    });
+    res.status(200).json({
+      status: 'success',
+      data: {
+        tour: tour,
+      },
+    });
+  } catch (err) {
+    res.status(404).json({
+      status: 'fail',
+      message: 'invalid data sent!',
+    });
+  }
+};
+exports.deleteTour = async (req, res) => {
+  try {
+    await Tour.findByIdAndDelete(req.params.id);
+    res.status(204).json({
+      status: 'success',
+      data: {
+        tour: null,
+      },
+    });
+  } catch (err) {
+    res.status(404).json({
+      status: 'fail',
+      message: 'invalid data sent!',
+    });
+  }
+};
