@@ -9,8 +9,8 @@
   "scripts": {
     "start:dev": "nodemon server.js",
     "start:prod": "SET NODE_ENV=production& nodemon server.js",
-    "deleteData":"node ./dev-data/data/import-dev-data --delete",
-    "importData":"node ./dev-data/data/import-dev-data --import",
+    "deleteData": "node ./dev-data/data/import-dev-data --delete",
+    "importData": "node ./dev-data/data/import-dev-data --import",
     "debug": "ndb server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
